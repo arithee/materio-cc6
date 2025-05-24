@@ -1,0 +1,105 @@
+// Accordions
+// *******************************************************************************
+.accordion {
+  --#{$prefix}accordion-box-shadow: #{$box-shadow-xs};
+  --#{$prefix}accordion-active-box-shadow: #{$box-shadow};
+  --#{$prefix}accordion-active-bg: var(--#{$prefix}accordion-bg);
+  --#{$prefix}accordion-btn-active-bg: var(--#{$prefix}accordion-active-bg);
+  --#{$prefix}accordion-btn-focus-box-shadow: none;
+  --#{$prefix}accordion-btn-focus-shadow-width: 0;
+
+  .accordion-button {
+    &::after {
+      background: var(--#{$prefix}accordion-btn-color);
+      mask-image: var(--#{$prefix}accordion-btn-icon);
+      mask-repeat: no-repeat;
+      mask-size: 100% 100%;
+    }
+    &:not(.collapsed) {
+      &::after {
+        background: var(--#{$prefix}accordion-active-color);
+        mask-image: var(--#{$prefix}accordion-btn-active-icon);
+      }
+    }
+  }
+
+  &.accordion-without-arrow {
+    .accordion-button::after {
+      background: none;
+    }
+  }
+  .accordion-item {
+    &:not(:first-of-type) {
+      border-block-start: var(--#{$prefix}accordion-border-width) solid var(--#{$prefix}paper-bg);
+    }
+    &.previous-active:not(:first-of-type, .active, .active + .accordion-item.previous-active) {
+      border-block-start-color: var(--#{$prefix}border-color);
+    }
+    &.active + .accordion-item {
+      @include border-top-radius(var(--#{$prefix}accordion-border-radius));
+      &:not(:last-of-type, .active, .previous-active) {
+        border-block-end-color: var(--#{$prefix}border-color);
+      }
+    }
+    &.active ~ .accordion-item {
+      &:not(:last-of-type) {
+        border-block-end-color: var(--#{$prefix}border-color);
+      }
+    }
+    &:has(~ .accordion-item.previous-active):not(:first-of-type) {
+      border-block-start-color: var(--#{$prefix}border-color);
+    }
+    @include transition($accordion-transition);
+    > .accordion-header .accordion-button {
+      @include border-radius(var(--#{$prefix}accordion-inner-border-radius));
+    }
+    &.active,
+    &.previous-active {
+      margin-block-end: $spacer * .5;
+    }
+    &.active {
+      @include border-radius(var(--#{$prefix}accordion-border-radius));
+    }
+    &.previous-active {
+      @include border-bottom-radius(var(--#{$prefix}accordion-border-radius));
+    }
+  }
+  &:not(:has(.accordion-item.active)) .accordion-item:not(:first-of-type) {
+    border-block-start-color: var(--#{$prefix}border-color);
+  }
+}
+
+.accordion-item {
+  box-shadow: var(--#{$prefix}accordion-box-shadow);
+  &.active {
+    background-color: var(--#{$prefix}accordion-active-bg);
+    box-shadow: var(--#{$prefix}accordion-active-box-shadow);
+  }
+}
+
+.accordion-header {
+  line-height: $line-height-base;
+  & + .accordion-collapse .accordion-body {
+    padding-block-start: 0;
+  }
+}
+
+/* Accordion border radius */
+.accordion-button {
+  font-weight: inherit;
+  &::after{
+    margin-inline-end: initial;
+    margin-inline-start: auto;
+  }
+  &:not(.collapsed) {
+    background-color: var(--#{$prefix}accordion-btn-active-bg);
+    box-shadow: inset 0 calc(-1 * var(--#{$prefix}accordion-btn-focus-shadow-width)) 0 var(--#{$prefix}accordion-border-color);
+  }
+}
+
+/* Generate contextual modifier classes for colorizing the alert */
+@each $state in map-keys($theme-colors) {
+  .accordion-header-#{$state} {
+    --#{$prefix}accordion-active-color: var(--#{$prefix}#{$state});
+  }
+}

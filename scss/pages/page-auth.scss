@@ -1,0 +1,99 @@
+// * Authentication
+// *******************************************************************************
+
+@import "../_bootstrap-extended/include";
+
+$authentication-1-inner-max-width: 460px !default;
+
+.authentication-wrapper {
+  display: flex;
+  flex-basis: 100%;
+  inline-size: 100%;
+  min-block-size: 100vh;
+
+  .authentication-inner {
+    inline-size: 100%;
+  }
+
+  &.authentication-basic {
+    align-items: center;
+    justify-content: center;
+  }
+  .auth-cover-illustration {
+    z-index: 1;
+    max-inline-size: 38rem;
+  }
+
+  .authentication-image-object {
+    &-left {
+      position: absolute;
+      inset-block-end: 6%;
+      inset-inline-start: 4%;
+    }
+    &-right {
+      position: absolute;
+      inset-block-end: 7%;
+      inset-inline-end: 4%;
+    }
+  }
+
+  .authentication-image {
+    position: absolute;
+    z-index: -1;
+    inline-size: 100%;
+    inset-block-end: 0;
+    inset-inline-start: 0;
+  }
+  .authentication-image-model {
+    inline-size: 768px;
+  }
+
+  &.authentication-cover {
+    align-items: flex-start;
+    .authentication-inner {
+      position: relative;
+      min-block-size: 100vh;
+    }
+    .authentication-image {
+      inset-inline-start: unset;
+    }
+    .authentication-image-tree {
+      position: absolute;
+      inset-block-end: 4rem;
+      inset-inline-start: 3rem;
+    }
+  }
+
+  &.authentication-basic .authentication-inner {
+    max-inline-size: $authentication-1-inner-max-width;
+  }
+
+  // For two-steps auth
+  .auth-input-wrapper .auth-input {
+    max-inline-size: 50px;
+    padding-inline: .4rem;
+  }
+}
+
+// Two-steps auth responsive style
+@include media-breakpoint-down(sm) {
+  .authentication-wrapper {
+    .auth-input-wrapper .auth-input {
+      font-size: $h5-font-size;
+    }
+  }
+}
+
+// Responsive style for cover mask
+@include media-breakpoint-down(xl) {
+  .authentication-cover {
+    .authentication-image-model {
+      position: relative;
+      inline-size: 575px;
+      inset-block-start: 1rem;
+    }
+  }
+}
+.authentication-wrapper .authentication-bg {
+  background-color: $white;
+}

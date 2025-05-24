@@ -1,0 +1,257 @@
+/* Modals
+******************************************************************************* */
+
+/* Modal Shadow */
+.modal-content {
+  box-shadow: var(--#{$prefix}modal-box-shadow-xs);
+  .modal-header {
+    padding-block-end: 0;
+  }
+  .modal-footer {
+    padding-block: $modal-header-padding-y;
+    padding-block-start: 0;
+    padding-inline: $modal-footer-padding;
+    & > * {
+      margin-block: 0;
+    }
+  }
+  .modal:not(.modal-onboarding) & {
+    .modal-footer > * {
+      &:first-child {
+        margin-inline-start: 0;
+      }
+      &:last-child {
+        margin-inline-end: 0;
+      }
+    }
+  }
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  color: var(--#{$prefix}primary);
+
+  &:hover,
+  &:focus {
+    color: var(--#{$prefix}primary);
+  }
+}
+
+/* Onboarding Modals
+******************************************************************************* */
+
+.modal-onboarding {
+  .close-label {
+    position: absolute;
+    font-size: .8rem;
+    inset-block-start: .85rem;
+    opacity: $btn-close-opacity;
+
+    &:hover {
+      opacity: $btn-close-hover-opacity;
+    }
+  }
+  .onboarding-content {
+    margin: 2rem;
+  }
+
+  form {
+    margin-block-start: 2rem;
+    text-align: start;
+  }
+
+  // Carousel Inside Modal
+  .carousel .carousel-indicators {
+    inset-block-end: -10px;
+    [data-bs-target] {
+      background-color: var(--#{$prefix}primary);
+    }
+  }
+
+  .carousel-control-prev,
+  .carousel-control-next {
+    inset-block: auto .75rem;
+    opacity: 1;
+  }
+
+  .carousel-control-prev {
+    inset-inline: 1rem auto;
+  }
+
+  .carousel-control-next {
+    inset-inline: auto 0;
+  }
+
+  .onboarding-horizontal {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .onboarding-media {
+      margin: 2rem;
+      margin-block-start: 0;
+    }
+  }
+
+}
+
+/* Top modals
+******************************************************************************* */
+
+.modal-top {
+  .modal-dialog {
+    margin-block-start: 0;
+  }
+
+  .modal-content {
+    @include border-top-radius(0);
+  }
+}
+
+/* Transparent modals
+****************************************************************************** */
+
+.modal-transparent {
+  .modal-dialog {
+    display: flex;
+    margin-block: 0;
+    margin-inline: auto;
+    min-block-size: 100vh;
+  }
+
+  .modal-content {
+    margin: auto;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .btn-close {
+    position: absolute;
+    background-image: str-replace(str-replace($btn-close-bg, "#{$btn-close-color}", $white), "#", "%23");
+    filter: none;
+    inset-block-start: $modal-header-padding-x;
+    inset-inline-end: $modal-header-padding-x;
+    opacity: 1;
+    padding-block: $btn-close-padding-y;
+    padding-inline: $btn-close-padding-x;
+  }
+}
+
+/* Modal Simple (Modal Examples)
+****************************************************************************** */
+
+.modal-simple {
+  .modal-content {
+    padding: $modal-simple-padding;
+    @include media-breakpoint-down(md) {
+      padding: calc($modal-simple-padding * .5);
+    }
+  }
+
+  .btn-close {
+    position: absolute;
+    inset-block-start: -($modal-simple-padding - $modal-simple-close-position);
+    inset-inline-end: -($modal-simple-padding - $modal-simple-close-position);
+    @include media-breakpoint-down(lg) {
+      inset-block-start: -1rem;
+      inset-inline-end: -1rem;
+    }
+    // For small screen set top, left/right 0 p-3,  p-md-5
+    @include media-breakpoint-down(md) {
+      inset-block-start: -1rem;
+      inset-inline-end: -1rem;
+    }
+  }
+}
+
+/* Refer & Earn Modal Example */
+.modal-refer-and-earn {
+  .modal-refer-and-earn-step {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @include border-radius($border-radius-pill);
+    block-size: 88px;
+    inline-size: 88px;
+
+    .icon-base {
+      @include icon-base(2.5rem);
+    }
+  }
+}
+
+// Pricing modal
+#pricingModal {
+  ul {
+    list-style-type: circle;
+    li {
+      &::marker {
+        font-size: 1.4rem;
+      }
+    }
+  }
+}
+
+/* Modal Animations
+****************************************************************************** */
+
+/* Slide from Top */
+.modal-top.fade .modal-dialog,
+.modal-top .modal.fade .modal-dialog {
+  transform: translateY(-100%);
+}
+
+.modal-top.show .modal-dialog,
+.modal-top .modal.show .modal-dialog {
+  transform: translateY(0);
+}
+
+/* Transparent */
+.modal-transparent.fade .modal-dialog,
+.modal-transparent .modal.fade .modal-dialog {
+  transform: scale(.5, .5);
+}
+
+.modal-transparent.show .modal-dialog,
+.modal-transparent .modal.show .modal-dialog {
+  transform: scale(1, 1);
+}
+
+/* Responsive
+******************************************************************************* */
+
+@include media-breakpoint-down(lg) {
+  .modal-onboarding .onboarding-horizontal {
+    flex-direction: column;
+  }
+}
+
+@include media-breakpoint-down(md) {
+  .modal {
+    .modal-dialog:not(.modal-fullscreen) {
+      padding-block: 0;
+      padding-inline: .75rem;
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+      display: none;
+    }
+  }
+}
+
+@include media-breakpoint-up(sm) {
+  .modal-content {
+    box-shadow: var(--#{$prefix}modal-box-shadow);
+  }
+
+  .modal-dialog.modal-sm {
+    max-inline-size: $modal-sm;
+  }
+}
+
+@include media-breakpoint-up(xl) {
+  .modal-xl .modal-dialog {
+    max-inline-size: $modal-xl;
+  }
+}

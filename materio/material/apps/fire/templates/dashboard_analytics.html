@@ -1,0 +1,240 @@
+{% extends layout_path %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Dashboard - Analytics{% endblock title %}
+
+{% block vendor_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'vendor/libs/apex-charts/apex-charts.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+  {{ block.super }}
+  <script src="{% static 'vendor/libs/apex-charts/apexcharts.js' %}"></script>
+  <!-- Include Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+  {{ block.super }}
+  <script src="{% static 'js/multiline-chart.js' %}"></script> {# Optional: put the script in a static file #}
+{% endblock page_js %}
+
+{% block content %}
+<div class="row gy-6">
+
+  <!-- Weekly Overview Chart -->
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Multiple Line Chart</div>
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="multipleLineChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Multiple Bar Chart</div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="multipleBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+
+<!-- Inline script (if you don’t want a static JS file) -->
+<script>
+  fetch("/multilineChart/")
+    .then(response => response.json())
+    .then(result_with_month_names => {
+      const countries = Object.keys(result_with_month_names);
+      const incidentCounts = [], incidentCounts2 = [], incidentCounts3 = [];
+
+      function sortKeys(obj) {
+        return Object.keys(obj).sort((a, b) => parseInt(a) - parseInt(b));
+      }
+
+      if (countries[0]) {
+        const sorted = sortKeys(result_with_month_names[countries[0]]);
+        sorted.forEach(k => incidentCounts.push(result_with_month_names[countries[0]][k]));
+      }
+      if (countries[1]) {
+        const sorted = sortKeys(result_with_month_names[countries[1]]);
+        sorted.forEach(k => incidentCounts2.push(result_with_month_names[countries[1]][k]));
+      }
+      if (countries[2]) {
+        const sorted = sortKeys(result_with_month_names[countries[2]]);
+        sorted.forEach(k => incidentCounts3.push(result_with_month_names[countries[2]][k]));
+      }
+
+      const ctx = document.getElementById("multipleLineChart").getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+          datasets: [
+            {
+              label: countries[0],
+              borderColor: "#1fd43f",
+              pointBorderColor: "#FFF",
+              pointBackgroundColor: "#1fd43f",
+              data: incidentCounts,
+              fill: true,
+              backgroundColor: "transparent",
+              borderWidth: 2
+            },
+            {
+              label: countries[1],
+              borderColor: "#59405d",
+              pointBorderColor: "#FFF",
+              pointBackgroundColor: "#59405d",
+              data: incidentCounts2,
+              fill: true,
+              backgroundColor: "transparent",
+              borderWidth: 2
+            },
+            {
+              label: countries[2],
+              borderColor: "#e26a2c",
+              pointBorderColor: "#FFF",
+              pointBackgroundColor: "#e26a2c",
+              data: incidentCounts3,
+              fill: true,
+              backgroundColor: "transparent",
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom"
+            },
+            title: {
+              display: true,
+              text: "Fire Incidents by Severity Level"
+            },
+            tooltip: {
+              mode: "index",
+              intersect: false
+            }
+          },
+          scales: {
+            x: {
+              stacked: true
+            },
+            y: {
+              stacked: true
+            }
+          }
+        }
+      });
+    })
+    .catch(error => console.error("Error:", error));
+  fetch("/multiBarChart/")
+            .then((response) => response.json())
+            .then((result) => {
+                var severitylevel = Object.keys(result);
+                // Extract incident counts for each severity level
+                var incidentCount_major = [];
+                var incidentCount_minor = [];
+                var incidentCount_moderate = [];
+
+                var months = Object.keys(result);
+                var counts = Object.values(result);
+
+                // Sort function to sort object keys by month
+                function sortObjectKeys(obj) {
+                return Object.keys(obj).sort((a, b) => parseInt(a) - parseInt(b));
+                }
+
+                // Check if data for each severity level exists and extract incident counts
+                if (severitylevel.length >= 1) {
+                var sl1_data = result[severitylevel[0]];
+                var sortedKeys1 = sortObjectKeys(sl1_data);
+                incidentCount_major = sortedKeys1.map((key) => sl1_data[key]);
+                }
+
+                if (severitylevel.length >= 2) {
+                var sl2_data = result[severitylevel[1]];
+                var sortedKeys2 = sortObjectKeys(sl2_data);
+                incidentCount_minor = sortedKeys2.map((key) => sl2_data[key]);
+                }
+
+                if (severitylevel.length >= 3) {
+                var sl3_data = result[severitylevel[2]];
+                var sortedKeys3 = sortObjectKeys(sl3_data);
+                incidentCount_moderate = sortedKeys3.map((key) => sl3_data[key]);
+                }
+
+                // Now create the chart after the data is ready
+                var multipleBarChart = document.getElementById("multipleBarChart").getContext("2d");
+
+                new Chart(multipleBarChart, {
+                type: "bar",
+                data: {
+                    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    datasets: [
+                    {
+                        label: "Minor Fire",
+                        backgroundColor: "#595d5d",
+                        borderColor: "#595d5d",
+                        data: incidentCount_minor,
+                    },
+                    {
+                        label: "Moderate Fire",
+                        backgroundColor: "#f4a84b",
+                        borderColor: "#f4a84b",
+                        data: incidentCount_moderate,
+                    },
+                    {
+                        label: "Major Fire",
+                        backgroundColor: "#1174d7",
+                        borderColor: "#1174d7",
+                        data: incidentCount_major,
+                    },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    legend: {
+                    position: "bottom",
+                    },
+                    title: {
+                    display: true,
+                    text: "Fire Incidents by Severity Level",
+                    },
+                    tooltips: {
+                    mode: "index",
+                    intersect: false,
+                    },
+                    scales: {
+                    xAxes: [
+                        {
+                        stacked: true,
+                        },
+                    ],
+                    yAxes: [
+                        {
+                        stacked: true,
+                        },
+                    ],
+                    },
+                },
+                });
+            })
+            .catch((error) => console.error("Error:", error));
+</script>
+{% endblock content %}

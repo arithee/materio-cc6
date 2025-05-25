@@ -24,11 +24,11 @@
 {% block content %}
 <div class="row gy-6">
 
-  <!-- Weekly Overview Chart -->
+  <!-- 1st Row -->
   <div class="col-md-6">
     <div class="card">
       <div class="card-header">
-        <div class="card-title">Multiple Line Chart</div>
+        <div class="card-title">Fire Incidents Severity Chart</div>
       </div>
       <div class="card-body">
         <div class="chart-container">
@@ -40,7 +40,7 @@
   <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">Multiple Bar Chart</div>
+                    <div class="card-title">Fire Incidents Description</div>
                 </div>
                 <div class="card-body">
                     <div class="chart-container">
@@ -50,191 +50,330 @@
             </div>
     </div>
 </div>
+<!-- 2nd Row -->
+<br>
+<div class="row">
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-header">Firefighters</div>
+      <div class="card-body">
+        <h2>{{ firefighters_count }}</h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-header">Fire Trucks</div>
+      <div class="card-body">
+        <h2>{{ firetrucks_count }}</h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-header">Fire Stations</div>
+      <div class="card-body">
+        <h2>{{ firestations_count }}</h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-header">Incidents</div>
+      <div class="card-body">
+        <h2>{{ incidents_count }}</h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 3rd Row -->
+<br> 
+<div class="row">
+<div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Fire Incidents Pie Chart</div>
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div class="col-md-6">
+              <div class="card">
+                  <div class="card-header">
+                      <div class="card-title">Fire Stations per City</div>
+                  </div>
+                  <div class="card-body">
+                      <div class="chart-container">
+                          <canvas id="lineChart"></canvas>
+                      </div>
+                  </div>
+              </div>
+      </div>
+  </div>
+
+</div>
+
 
 <!-- Inline script (if you don’t want a static JS file) -->
 <script>
   fetch("/multilineChart/")
-    .then(response => response.json())
-    .then(result_with_month_names => {
-      const countries = Object.keys(result_with_month_names);
-      const incidentCounts = [], incidentCounts2 = [], incidentCounts3 = [];
+    .then((response) => response.json())
+    .then((result_with_month_names) => {
+        var countries = Object.keys(result_with_month_names);
+        var incidentCounts = [];
+        var incidentCounts2 = [];
+        var incidentCounts3 = [];
 
-      function sortKeys(obj) {
-        return Object.keys(obj).sort((a, b) => parseInt(a) - parseInt(b));
-      }
-
-      if (countries[0]) {
-        const sorted = sortKeys(result_with_month_names[countries[0]]);
-        sorted.forEach(k => incidentCounts.push(result_with_month_names[countries[0]][k]));
-      }
-      if (countries[1]) {
-        const sorted = sortKeys(result_with_month_names[countries[1]]);
-        sorted.forEach(k => incidentCounts2.push(result_with_month_names[countries[1]][k]));
-      }
-      if (countries[2]) {
-        const sorted = sortKeys(result_with_month_names[countries[2]]);
-        sorted.forEach(k => incidentCounts3.push(result_with_month_names[countries[2]][k]));
-      }
-
-      const ctx = document.getElementById("multipleLineChart").getContext("2d");
-      new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-          datasets: [
-            {
-              label: countries[0],
-              borderColor: "#1fd43f",
-              pointBorderColor: "#FFF",
-              pointBackgroundColor: "#1fd43f",
-              data: incidentCounts,
-              fill: true,
-              backgroundColor: "transparent",
-              borderWidth: 2
-            },
-            {
-              label: countries[1],
-              borderColor: "#59405d",
-              pointBorderColor: "#FFF",
-              pointBackgroundColor: "#59405d",
-              data: incidentCounts2,
-              fill: true,
-              backgroundColor: "transparent",
-              borderWidth: 2
-            },
-            {
-              label: countries[2],
-              borderColor: "#e26a2c",
-              pointBorderColor: "#FFF",
-              pointBackgroundColor: "#e26a2c",
-              data: incidentCounts3,
-              fill: true,
-              backgroundColor: "transparent",
-              borderWidth: 2
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: "bottom"
-            },
-            title: {
-              display: true,
-              text: "Fire Incidents by Severity Level"
-            },
-            tooltip: {
-              mode: "index",
-              intersect: false
-            }
-          },
-          scales: {
-            x: {
-              stacked: true
-            },
-            y: {
-              stacked: true
-            }
-          }
+        function sortObjectKeys(obj) {
+            return Object.keys(obj).sort((a, b) => parseInt(a) - parseInt(b));
         }
-      });
-    })
-    .catch(error => console.error("Error:", error));
-  fetch("/multiBarChart/")
-            .then((response) => response.json())
-            .then((result) => {
-                var severitylevel = Object.keys(result);
-                // Extract incident counts for each severity level
-                var incidentCount_major = [];
-                var incidentCount_minor = [];
-                var incidentCount_moderate = [];
 
-                var months = Object.keys(result);
-                var counts = Object.values(result);
+        if (countries.length >= 1) {
+            var country1_data = result_with_month_names[countries[0]];
+            var sortedKeys1 = sortObjectKeys(country1_data);
+            incidentCounts = sortedKeys1.map((key) => country1_data[key]);
+        }
+        if (countries.length >= 2) {
+            var country2_data = result_with_month_names[countries[1]];
+            var sortedKeys2 = sortObjectKeys(country2_data);
+            incidentCounts2 = sortedKeys2.map((key) => country2_data[key]);
+        }
+        if (countries.length >= 3) {
+            var country3_data = result_with_month_names[countries[2]];
+            var sortedKeys3 = sortObjectKeys(country3_data);
+            incidentCounts3 = sortedKeys3.map((key) => country3_data[key]);
+        }
 
-                // Sort function to sort object keys by month
-                function sortObjectKeys(obj) {
-                return Object.keys(obj).sort((a, b) => parseInt(a) - parseInt(b));
-                }
+        var multipleLineChart = document.getElementById("multipleLineChart").getContext("2d");
 
-                // Check if data for each severity level exists and extract incident counts
-                if (severitylevel.length >= 1) {
-                var sl1_data = result[severitylevel[0]];
-                var sortedKeys1 = sortObjectKeys(sl1_data);
-                incidentCount_major = sortedKeys1.map((key) => sl1_data[key]);
-                }
-
-                if (severitylevel.length >= 2) {
-                var sl2_data = result[severitylevel[1]];
-                var sortedKeys2 = sortObjectKeys(sl2_data);
-                incidentCount_minor = sortedKeys2.map((key) => sl2_data[key]);
-                }
-
-                if (severitylevel.length >= 3) {
-                var sl3_data = result[severitylevel[2]];
-                var sortedKeys3 = sortObjectKeys(sl3_data);
-                incidentCount_moderate = sortedKeys3.map((key) => sl3_data[key]);
-                }
-
-                // Now create the chart after the data is ready
-                var multipleBarChart = document.getElementById("multipleBarChart").getContext("2d");
-
-                new Chart(multipleBarChart, {
-                type: "bar",
-                data: {
-                    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                    datasets: [
+        new Chart(multipleLineChart, {
+            type: "line",
+            data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                datasets: [
                     {
-                        label: "Minor Fire",
-                        backgroundColor: "#595d5d",
-                        borderColor: "#595d5d",
-                        data: incidentCount_minor,
+                        label: countries[0],
+                        borderColor: "#1fd43f",
+                        pointBorderColor: "#FFF",
+                        pointBackgroundColor: "#1fd43f",
+                        borderWidth: 2,
+                        fill: true,
+                        data: incidentCounts,
                     },
                     {
-                        label: "Moderate Fire",
-                        backgroundColor: "#f4a84b",
-                        borderColor: "#f4a84b",
-                        data: incidentCount_moderate,
+                        label: countries[1],
+                        borderColor: "#59405d",
+                        pointBorderColor: "#FFF",
+                        pointBackgroundColor: "#59405d",
+                        borderWidth: 2,
+                        fill: true,
+                        data: incidentCounts2,
                     },
                     {
-                        label: "Major Fire",
-                        backgroundColor: "#1174d7",
-                        borderColor: "#1174d7",
-                        data: incidentCount_major,
+                        label: countries[2],
+                        borderColor: "#e26a2c",
+                        pointBorderColor: "#FFF",
+                        pointBackgroundColor: "#e26a2c",
+                        borderWidth: 2,
+                        fill: true,
+                        data: incidentCounts3,
                     },
-                    ],
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    legend: {
-                    position: "bottom",
-                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
                     title: {
-                    display: true,
-                    text: "Fire Incidents by Severity Level",
+                        display: true,
+                        text: "Fire Incidents by Severity Level",
                     },
-                    tooltips: {
-                    mode: "index",
-                    intersect: false,
+                    legend: {
+                        position: "bottom",
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: false,
                     },
-                    scales: {
-                    xAxes: [
-                        {
-                        stacked: true,
-                        },
-                    ],
-                    yAxes: [
-                        {
-                        stacked: true,
-                        },
-                    ],
+                    y: {
+                        stacked: false,
                     },
                 },
-                });
-            })
-            .catch((error) => console.error("Error:", error));
+            },
+        });
+    })
+    .catch((error) => console.error("Error:", error));
+
+  fetch("/multiBarChart/")
+        .then((response) => response.json())
+        .then((result) => {
+            var severitylevel = Object.keys(result);
+            // Extract incident counts for each severity level
+            var incidentCount_major = [];
+            var incidentCount_minor = [];
+            var incidentCount_moderate = [];
+
+            var months = Object.keys(result);
+            var counts = Object.values(result);
+
+            // Sort function to sort object keys by month
+            function sortObjectKeys(obj) {
+            return Object.keys(obj).sort((a, b) => parseInt(a) - parseInt(b));
+            }
+
+            // Check if data for each severity level exists and extract incident counts
+            if (severitylevel.length >= 1) {
+            var sl1_data = result[severitylevel[0]];
+            var sortedKeys1 = sortObjectKeys(sl1_data);
+            incidentCount_major = sortedKeys1.map((key) => sl1_data[key]);
+            }
+
+            if (severitylevel.length >= 2) {
+            var sl2_data = result[severitylevel[1]];
+            var sortedKeys2 = sortObjectKeys(sl2_data);
+            incidentCount_minor = sortedKeys2.map((key) => sl2_data[key]);
+            }
+
+            if (severitylevel.length >= 3) {
+            var sl3_data = result[severitylevel[2]];
+            var sortedKeys3 = sortObjectKeys(sl3_data);
+            incidentCount_moderate = sortedKeys3.map((key) => sl3_data[key]);
+            }
+
+            // Now create the chart after the data is ready
+            var multipleBarChart = document.getElementById("multipleBarChart").getContext("2d");
+
+            new Chart(multipleBarChart, {
+            type: "bar",
+            data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                datasets: [
+                {
+                    label: "Minor Fire",
+                    backgroundColor: "#595d5d",
+                    borderColor: "#595d5d",
+                    data: incidentCount_minor,
+                },
+                {
+                    label: "Moderate Fire",
+                    backgroundColor: "#f4a84b",
+                    borderColor: "#f4a84b",
+                    data: incidentCount_moderate,
+                },
+                {
+                    label: "Major Fire",
+                    backgroundColor: "#1174d7",
+                    borderColor: "#1174d7",
+                    data: incidentCount_major,
+                },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {
+                position: "bottom",
+                },
+                title: {
+                display: true,
+                text: "Fire Incidents by Severity Level",
+                },
+                tooltips: {
+                mode: "index",
+                intersect: false,
+                },
+                scales: {
+                xAxes: [
+                    {
+                    stacked: true,
+                    },
+                ],
+                yAxes: [
+                    {
+                    stacked: true,
+                    },
+                ],
+                },
+            },
+            });
+        })
+        .catch((error) => console.error("Error:", error));
+
+  fetch("/pieChart/")
+  .then((response) => response.json())
+  .then((result) => {
+    var pieChart = document.getElementById("pieChart").getContext("2d");
+    new Chart(pieChart, {
+      type: "pie",
+      data: {
+        labels: result.labels,
+        datasets: [{
+          data: result.counts,
+          backgroundColor: ["#f3545d", "#fdaf4b", "#1d7af3"],
+          borderWidth: 0,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: { position: "bottom" },
+        layout: { padding: { left: 20, right: 20, top: 20, bottom: 20 } },
+      },
+    });
+  });
+
+fetch("/lineChart/")
+  .then((response) => response.json())
+  .then((result) => {
+    var cities = Object.keys(result);
+    var counts = Object.values(result);
+    var lineChart = document.getElementById("lineChart").getContext("2d");
+
+    new Chart(lineChart, {
+      type: "line",
+      data: {
+        labels: cities,
+        datasets: [
+          {
+            label: "Fire Stations in Cities",
+            borderColor: "#1d7af3",
+            pointBorderColor: "#FFF",
+            pointBackgroundColor: "#1d7af3",
+            pointBorderWidth: 2,
+            pointHoverRadius: 4,
+            pointHoverBorderWidth: 1,
+            pointRadius: 4,
+            backgroundColor: "transparent",
+            fill: true,
+            borderWidth: 2,
+            data: counts,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: {
+              padding: 10,
+              color: "#1d7af3",
+            },
+          },
+        },
+        layout: {
+          padding: { left: 15, right: 15, top: 15, bottom: 15 },
+        },
+      },
+    });
+  })
+  .catch((error) => console.error("Error:", error));
 </script>
 {% endblock content %}

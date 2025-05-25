@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView
 from web_project import TemplateLayout
-from .models import FireStation
+from .models import Firefighters, FireTruck, FireStation, Incident
 from django.views.generic.list import ListView
 from django.db import connection
 from django.http import JsonResponse
@@ -18,8 +18,12 @@ class DashboardsView(TemplateView):
     def get_context_data(self, **kwargs):
         # A function to init the global layout. It is defined in web_project/__init__.py file
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
-
+        context['firefighters_count'] = Firefighters.objects.count()
+        context['firetrucks_count'] = FireTruck.objects.count()
+        context['firestations_count'] = FireStation.objects.count()
+        context['incidents_count'] = Incident.objects.count()
         return context
+
 def MultilineIncidentTop3Country(request):
     query = '''
     SELECT 
@@ -121,3 +125,38 @@ def multipleBarbySeverity(request):
         result[level] = dict(sorted(result[level].items()))
 
     return JsonResponse(result)
+
+def PieCountbySeverity(request):
+    query = '''
+    SELECT severity_level, COUNT(*) as count
+    FROM fire_incident
+    GROUP BY severity_level
+    '''
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+    labels = []
+    counts = []
+    for severity, count in rows:
+        labels.append(severity)
+        counts.append(count)
+
+    return JsonResponse({'labels': labels, 'counts': counts})
+
+def LineCountFirestations(request):
+    query = '''
+    SELECT city, COUNT(*) as count
+    FROM fire_firestation
+    GROUP BY city
+    ORDER BY city
+    '''
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+    data = {}
+    for city, count in rows:
+        data[city] = count
+
+    return JsonResponse(data)
